@@ -1,4 +1,4 @@
 interface:
   display_name: "Blended Storyboard"
   short_description: "Build an interactive blended storyboard"
-  default_prompt: "Use $blended-storyboard-maker to turn the user-provided course materials into a single interactive HTML storyboard."
+  default_prompt: "Use $blended-storyboard-maker to inspect the user-provided course materials, check whether they are sufficient, and turn them into a single interactive HTML storyboard without inventing missing course content."

@@ -1,11 +1,23 @@
 ---
 name: blended-storyboard-maker
-description: Create interactive course storyboards from user-provided teaching materials such as `.docx`, `.odt`, `.pdf`, `.xlsx`, and folders of course documents. Use when Codex needs to read source files and turn them into a week-by-week blended learning storyboard, usually in a single HTML file, with rows such as face-to-face, practice, and online or other user-specified learning modes.
+description: Create interactive course storyboards from user-provided teaching materials such as `.docx`, `.odt`, `.pdf`, `.xlsx`, and folders of course documents. Use when an agent is asked to read source files and turn them into a week-by-week blended learning storyboard, usually in a single HTML file, with rows such as face-to-face, practice, and online or other user-specified learning modes.
 ---
 
 # Blended Storyboard Maker
 
 Create a storyboard that translates user-provided course materials into a clear teaching design artifact. Do not treat the skill as a source of course content. Read the supplied files first, infer the course flow conservatively, and present the result in the language requested by the user.
+
+## Agent Compatibility
+
+- Treat this file as the canonical workflow specification for every agent adapter in this repository.
+- Keep agent-specific UI text, trigger prompts, and runtime conventions out of this file. Put those in `agents/`.
+- Preserve the same behavioral contract across agents:
+  - inspect the provided materials before planning
+  - state missing critical information before generating the artifact
+  - derive rows, columns, and activities from the supplied materials
+  - avoid invented course content
+  - keep visible output in the user's language
+- If an agent platform cannot execute a preferred local tool, use the closest available fallback while preserving the same output rules and quality bar.
 
 ## Output Rules
 
@@ -23,8 +35,9 @@ Create a storyboard that translates user-provided course materials into a clear 
 - List the files in the provided folder before planning the storyboard.
 - Read all relevant source files that define the course flow: weekly descriptions, assignments, rubric documents, revision notes, schedules, and similar materials.
 - Prefer fast local inspection tools such as `rg --files`, `textutil`, `sed`, and related shell tools.
-- Extract text conservatively. For `.odt` and `.docx`, use `textutil` when available.
-- For `.xlsx`, inspect sheets and schedule tables explicitly, and convert relevant tabs to plain text or CSV when needed before deriving the storyboard.
+- Extract text conservatively. For `.odt` and `.docx`, prefer `textutil` when available, otherwise use `pandoc`, unzip-and-read XML, or another local text extraction route.
+- For `.xlsx`, inspect sheets and schedule tables explicitly, and convert relevant tabs to plain text or CSV when needed before deriving the storyboard. Prefer `python` plus `openpyxl` or a comparable spreadsheet reader when direct CSV export is not available.
+- For `.pdf`, prefer a local text extraction tool such as `pdftotext` when available, or another reliable extractor that keeps page content attributable.
 
 ### 2. Check whether the materials are sufficient
 
@@ -91,3 +104,12 @@ Create a storyboard that translates user-provided course materials into a clear 
 - Compress text until the storyboard is easy to scan.
 - Use short placeholders for empty cells instead of explanatory paragraphs.
 - Keep the final artifact user-ready, not exploratory.
+
+## Minimum Acceptance Criteria
+
+- The agent lists or inspects the supplied files before synthesizing the storyboard.
+- The agent explicitly identifies missing critical inputs when the material set is insufficient.
+- The storyboard structure follows the user's requested row and column model, or a clearly stated default.
+- `Practice` is only used when the source materials support authentic practice contact or authentic practice work.
+- The final artifact contains only claims that can be traced back to the supplied materials.
+- The visible output language matches the user's language.
